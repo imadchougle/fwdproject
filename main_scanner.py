@@ -1,5 +1,5 @@
 import xlwings as xw
-
+import numpy as np
 
 def clear_colors(sheet):
     red_color = (255, 0, 0)
