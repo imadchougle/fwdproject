@@ -1,0 +1,9 @@
+{
+  "client_id" : "6MJS9TQZAO-100",
+  "secret_id" : "RPGB5XISNV",
+  "redirect_uri" : "http://127.0.0.1",
+  "response_type" : "code"  ,
+  "state"  : "sample_state",
+  "grant_type" : "authorization_code",
+  "pin" : 3952
+}
