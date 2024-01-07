@@ -1,5 +1,46 @@
+from fyers_apiv3 import fyersModel
 import xlwings as xw
-import numpy as np
+from utils import *
+import json
+
+
+def get_latest_ltp():
+    apicredfile = open('UserCred.json')
+    UserCred = json.load(apicredfile)
+
+    with open('Tokens/access_token.txt', 'r') as file:
+        token = file.read().strip()
+
+    client_id = UserCred["client_id"]
+
+    fyers = fyersModel.FyersModel(client_id=client_id,
+                                  is_async=False,
+                                  token=token
+                                  )
+    stock_ltp = []
+
+    for i in range(len(scripts)):
+        data = {
+                "symbols": "NSE:" + scripts[i] + "-EQ"
+            }
+        response = fyers.quotes(data=data)
+        ltp = response.get("d", [])[0].get("v", {}).get("lp")
+
+        stock_ltp.append(ltp)
+
+    return stock_ltp
+
+
+def add_ltp_from_here():
+    data_list = result
+    wb = xw.Book('Combined_with_LTP.xlsx')
+    sheet = xw.sheets[0]
+    cell_to_add = 'B3'
+    sheet.range(cell_to_add).options(transpose=True).value = data_list
+
+    wb.save()
+    wb.close()
+
 
 def clear_colors(sheet):
     red_color = (255, 0, 0)
@@ -17,7 +58,7 @@ def highlight_matching_ltp_with_fib_level_price(file_path):
 
     clear_colors(sheet)
 
-    # Iterate through the rows starting from the third row
+    # here we Iterate through the rows starting from the third row
     for i in range(3, total_rows + 1):
         # Get the LTP value in the current row
         ltp = sheet.range((i, 2)).value
@@ -37,15 +78,22 @@ def highlight_matching_ltp_with_fib_level_price(file_path):
     app.quit()
 
 
-highlight_matching_ltp_with_fib_level_price('Combined_with_LTP.xlsx')
-
-
 def highlight_matching_fib_levels(file_path):
+    column_mapping = {'C': 'L',
+                      'D': 'M',
+                      'E': 'N',
+                      'F': 'O',
+                      'G': 'P',
+                      'H': 'Q',
+                      'I': 'R',
+                      'J': 'S',
+                      'K': 'T'}
+
     app = xw.App(visible=False)
     wb = xw.Book(file_path)
     sheet = wb.sheets[0]
 
-    #clear_colors(sheet)
+    # clear_colors(sheet)
     start_row = 3
     last_row = sheet.used_range.rows.count
 
@@ -67,7 +115,9 @@ def highlight_matching_fib_levels(file_path):
     app.quit()
 
 
-#mapping of columns to compare
-column_mapping = {'C': 'L', 'D': 'M', 'E': 'N', 'F': 'O', 'G': 'P', 'H': 'Q', 'I': 'R', 'J': 'S', 'K': 'T'}
+if __name__ == "__main__":
 
-highlight_matching_fib_levels('Combined_with_LTP.xlsx')
+    result = get_latest_ltp()
+    add_ltp_from_here()
+    highlight_matching_ltp_with_fib_level_price('Combined_with_LTP.xlsx')
+    #highlight_matching_fib_levels('Combined_with_LTP.xlsx')

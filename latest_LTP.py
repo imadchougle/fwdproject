@@ -9,30 +9,17 @@ UserCred = json.load(apicredfile)
 file_path = 'csv_files/merged_data_without_LTP.csv'
 
 
-def get_access_token():
-    try:
-        with open('Tokens/access_token.txt', 'r') as file:
-            access_token = file.read().strip()
-        return access_token
-    except FileNotFoundError:
-        print("Error: access_token.txt not found.")
-        return None
-
-
-token = get_access_token()
+with open('Tokens/access_token.txt', 'r') as file:
+    token = file.read().strip()
 
 
 client_id = UserCred["client_id"]
-secret_key = UserCred["secret_id"]
-redirect_uri = UserCred["redirect_uri"]
-response_type = UserCred["response_type"]
-state = UserCred["state"]
-grant_type = UserCred["grant_type"]
+
 
 fyers = fyersModel.FyersModel(client_id=client_id,
                               is_async=False,
-                              token=token,
-                              log_path="")
+                              token=token
+                              )
 stock_ltp = []
 
 with open(file_path, 'r', newline='') as csvfile:
