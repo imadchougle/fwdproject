@@ -1,6 +1,12 @@
 import xlwings as xw
 import numpy as np
 
+
+def getting_latest_ltp_from_here():
+    latest_ltp = np.array([503, 680, 560, 49, 165])
+    return latest_ltp
+
+
 def clear_colors(sheet):
     red_color = (255, 0, 0)
     used_range = sheet.used_range
@@ -37,9 +43,6 @@ def highlight_matching_ltp_with_fib_level_price(file_path):
     app.quit()
 
 
-highlight_matching_ltp_with_fib_level_price('Combined_with_LTP.xlsx')
-
-
 def highlight_matching_fib_levels(file_path):
     app = xw.App(visible=False)
     wb = xw.Book(file_path)
@@ -67,7 +70,11 @@ def highlight_matching_fib_levels(file_path):
     app.quit()
 
 
-#mapping of columns to compare
-column_mapping = {'C': 'L', 'D': 'M', 'E': 'N', 'F': 'O', 'G': 'P', 'H': 'Q', 'I': 'R', 'J': 'S', 'K': 'T'}
+if __name__ == "__main__":
 
-highlight_matching_fib_levels('Combined_with_LTP.xlsx')
+    latest_ltp = getting_latest_ltp_from_here()
+
+    column_mapping = {'C': 'L', 'D': 'M', 'E': 'N', 'F': 'O', 'G': 'P', 'H': 'Q', 'I': 'R', 'J': 'S', 'K': 'T'}
+    #highlight_matching_ltp_with_fib_level_price('Combined_with_LTP.xlsx')
+    #highlight_matching_fib_levels('Combined_with_LTP.xlsx')
+
