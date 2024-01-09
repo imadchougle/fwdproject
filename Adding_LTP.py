@@ -1,7 +1,7 @@
-from fyers_apiv3 import fyersModel
+import xlwings as xw
 import json
 from utils import *
-import xlwings as xw
+from fyers_apiv3 import fyersModel
 
 
 def get_latest_ltp():
@@ -31,18 +31,24 @@ def get_latest_ltp():
     return stock_ltp
 
 
-result = get_latest_ltp()
+latest_ltp = get_latest_ltp()
 
 
-def add_ltp_from_here():
-    data_list = result
-    wb = xw.Book('Combined_with_LTP.xlsx')
-    sheet = xw.sheets[0]
-    cell_to_add = 'B3'
+def adding_ltp_column():
+    file_path = 'csv_files/merged_data_without_LTP.xlsx'
+    wb = xw.Book(file_path)
+    sheet = wb.sheets[0]
+
+    sheet.range('B:B').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
+    sheet.range('B1').value = 'ltp'
+
+    data_list = latest_ltp
+
+    cell_to_add = 'B2'
     sheet.range(cell_to_add).options(transpose=True).value = data_list
 
-    wb.save()
+    wb.save('csv_files/merged_data_with_ltp.xlsx')
     wb.close()
 
 
-add_ltp_from_here()
+adding_ltp_column()

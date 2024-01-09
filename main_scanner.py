@@ -33,7 +33,7 @@ def get_latest_ltp():
 
 def add_ltp_from_here():
     data_list = result
-    wb = xw.Book('Combined_with_LTP.xlsx')
+    wb = xw.Book('csv_files/merged_data_with_ltp.xlsx')
     sheet = xw.sheets[0]
     cell_to_add = 'B3'
     sheet.range(cell_to_add).options(transpose=True).value = data_list
@@ -119,5 +119,5 @@ if __name__ == "__main__":
 
     result = get_latest_ltp()
     add_ltp_from_here()
-    highlight_matching_ltp_with_fib_level_price('Combined_with_LTP.xlsx')
-    #highlight_matching_fib_levels('Combined_with_LTP.xlsx')
+    highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')
+    #highlight_matching_fib_levels('csv_files/merged_data_with_ltp.xlsx')
