@@ -12,7 +12,7 @@ def merger():
 
     merged_df = pd.concat([df_45_days, df_15_days],
                           axis=1,
-                          keys=['45_days', '15_days'])
+                          keys=['45 days', '15 days'])
 
     wb = xw.Book()
 
@@ -129,7 +129,8 @@ def highlight_matching_fib_levels(file_path):
 
 if __name__ == "__main__":
     #merger()
-    #latest_ltp = get_latest_ltp()
+    latest_ltp = get_latest_ltp()
+    #adding_ltp_column()
     result = get_latest_ltp()
     add_ltp_from_here()
     highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')
