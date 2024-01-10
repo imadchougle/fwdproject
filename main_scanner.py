@@ -2,33 +2,45 @@ from fyers_apiv3 import fyersModel
 import xlwings as xw
 from utils import *
 import json
+from get_LTP_from_here import *
+import pandas as pd
 
 
-def get_latest_ltp():
-    apicredfile = open('UserCred.json')
-    UserCred = json.load(apicredfile)
+def merger():
+    df_45_days = pd.read_csv('csv_files/D45_cycle.csv', index_col='stock')
+    df_15_days = pd.read_csv('csv_files/D15_cycle.csv', index_col='stock')
 
-    with open('Tokens/access_token.txt', 'r') as file:
-        token = file.read().strip()
+    merged_df = pd.concat([df_45_days, df_15_days],
+                          axis=1,
+                          keys=['45_days', '15_days'])
 
-    client_id = UserCred["client_id"]
+    wb = xw.Book()
 
-    fyers = fyersModel.FyersModel(client_id=client_id,
-                                  is_async=False,
-                                  token=token
-                                  )
-    stock_ltp = []
+    sheet = wb.sheets['Sheet1']
+    sheet.range('A1').value = merged_df
 
-    for i in range(len(scripts)):
-        data = {
-                "symbols": "NSE:" + scripts[i] + "-EQ"
-            }
-        response = fyers.quotes(data=data)
-        ltp = response.get("d", [])[0].get("v", {}).get("lp")
+    wb.save('csv_files/merged_data_without_LTP.xlsx')
 
-        stock_ltp.append(ltp)
+    wb.close()
+    print("Done Merging it")
 
-    return stock_ltp
+
+def adding_ltp_column():
+    file_path = 'csv_files/merged_data_without_LTP.xlsx'
+    wb = xw.Book(file_path)
+    sheet = wb.sheets[0]
+
+    sheet.range('B:B').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
+    sheet.range('B2').value = 'ltp'
+
+    data_list = latest_ltp
+
+    cell_to_add = 'B3'
+    sheet.range(cell_to_add).options(transpose=True).value = data_list
+
+    wb.save('csv_files/merged_data_with_ltp.xlsx')
+    wb.close()
+    print("Done Adding and LTP Column with LTP")
 
 
 def add_ltp_from_here():
@@ -116,7 +128,8 @@ def highlight_matching_fib_levels(file_path):
 
 
 if __name__ == "__main__":
-
+    #merger()
+    #latest_ltp = get_latest_ltp()
     result = get_latest_ltp()
     add_ltp_from_here()
     highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')

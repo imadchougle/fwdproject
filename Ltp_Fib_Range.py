@@ -1,4 +1,30 @@
+import xlwings as xw
+import utils
+from testing import *
+from utils import *
+from get_LTP_from_here import *
+
+
+def adding_ltp_column_and_data():
+    file_path = 'csv_files/merged_data_with_ltp.xlsx'
+    wb = xw.Book(file_path)
+    sheet = wb.sheets[0]
+
+    sheet.range('C:C').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
+    sheet.range('C2').value = '45Days'
+
+    cell_to_add = 'C3'
+    sheet.range(cell_to_add).options(transpose=True).value = new_result
+
+    cell_to_add = 'B3'
+    sheet.range(cell_to_add).options(transpose=True).value = stock_prices
+
+    wb.save('csv_files/merged_data_with_ltp_and_Range.xlsx')
+    wb.close()
+
+
 def find_fibonacci_range(stock_name, stock_price, fib_levels):
+
     fibonacci_ranges = {
         '0 - 0.236': (fib_levels[0], fib_levels[1]),
         '0.236 - 0.382': (fib_levels[1], fib_levels[2]),
@@ -14,23 +40,21 @@ def find_fibonacci_range(stock_name, stock_price, fib_levels):
     for range_name, bounds in fibonacci_ranges.items():
         lower, upper = bounds
         if lower <= stock_price <= upper:
-            return f"For {stock_name}, the stock price {stock_price} is in {range_name}"
+            result_range.append(range_name)
+            return result_range
 
-    return f"For {stock_name}, the stock price {stock_price} is not in any Fibonacci range"
 
+if __name__ == "__main__":
+    latest_ltp = get_latest_ltp()
+    result_range = []
+    stocks = scripts
+    stock_prices = latest_ltp
 
-stocks = ["XYZ", "ABC", "123", "PNB"]
-stock_prices = [620, 910, 450, 97.5]
+    fib_levels_stocks = d45_fib_prices
 
-fib_levels_stocks = [
-    (500, 550, 580, 600, 620, 650, 680, 700, 750),
-    (700, 750, 780, 800, 820, 850, 880, 900, 950),
-    (400, 450, 480, 500, 520, 550, 580, 600, 650),
-    (60, 90, 100, 120, 100, 90, 50, 90, 50)
-]
+    for i in range(len(stocks)):
+        result = find_fibonacci_range(stocks[i], stock_prices[i], fib_levels_stocks[i])
 
-for i in range(len(stocks)):
-    result = find_fibonacci_range(stocks[i],
-                                  stock_prices[i],
-                                  fib_levels_stocks[i])
-    print(result)
+    new_result = result
+
+    adding_ltp_column_and_data()

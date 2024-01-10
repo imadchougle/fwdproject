@@ -7,7 +7,8 @@ def merger():
     df_15_days = pd.read_csv('csv_files/D15_cycle.csv', index_col='stock')
 
     merged_df = pd.concat([df_45_days, df_15_days],
-                          axis=1)
+                          axis=1,
+                          keys=['45_days', '15_days'])
 
     wb = xw.Book()
 
@@ -18,3 +19,5 @@ def merger():
 
     wb.close()
     print("Done Merging it")
+
+#merger()
