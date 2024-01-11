@@ -12,7 +12,7 @@ def adding_ltp_column_and_data():
     sheet.range('C:C').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
     sheet.range('C2').value = '45 Days'
 
-    sheet.range('D:D').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
+    sheet.range('D:D').api.Insert(Shift=-4161)
     sheet.range('D2').value = '15 Days'
 
     cell_to_add = 'C3'
@@ -22,7 +22,7 @@ def adding_ltp_column_and_data():
     sheet.range(cell_to_add).options(transpose=True).value = new_result_15days
 
     cell_to_add = 'B3'
-    sheet.range(cell_to_add).options(transpose=True).value = stock_prices
+    sheet.range(cell_to_add).options(transpose=True).value = latest_ltp
 
     wb.save('csv_files/merged_data_with_ltp_and_Range.xlsx')
     wb.close()
@@ -41,13 +41,13 @@ def find_fibonacci_range(stock_name, stock_price, fib_levels):
         '1.618 + ': (fib_levels[8], float('inf'))
     }
 
-    result_range = []  # Initialize the list for each stock
+    result_range = []  # Initialize list for each stock
     for range_name, bounds in fibonacci_ranges.items():
         lower, upper = bounds
         if lower <= stock_price <= upper:
             result_range.append(range_name)
 
-    # If the stock doesn't fall into any range, add a placeholder value
+    # If the stock doesn't fall into any range, placeholder value
     if not result_range:
         result_range.append('Less than 0')
 
@@ -59,16 +59,19 @@ if __name__ == "__main__":
     result_range_45days = []
     result_range_15days = []
     stocks = scripts
-    stock_prices = latest_ltp
 
     fib_levels_of_45_days = d45_fib_prices
     fib_levels_of_15_days = d15_fib_prices
 
     for i in range(len(stocks)):
-        result_of_45days = find_fibonacci_range(stocks[i], stock_prices[i], fib_levels_of_45_days[i])
+        result_of_45days = find_fibonacci_range(stocks[i],
+                                                latest_ltp[i],
+                                                fib_levels_of_45_days[i])
         result_range_45days += result_of_45days  # Concatenate the result for each stock
 
-        result_of_15days = find_fibonacci_range(stocks[i], stock_prices[i], fib_levels_of_15_days[i])
+        result_of_15days = find_fibonacci_range(stocks[i],
+                                                latest_ltp[i],
+                                                fib_levels_of_15_days[i])
         result_range_15days += result_of_15days  # Concatenate the result for each stock
 
     new_result_45days = result_range_45days

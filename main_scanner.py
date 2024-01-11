@@ -1,7 +1,5 @@
-from fyers_apiv3 import fyersModel
 import xlwings as xw
 from utils import *
-import json
 from get_LTP_from_here import *
 import pandas as pd
 
@@ -25,7 +23,7 @@ def merger():
     print("Done Merging it")
 
 
-def adding_ltp_column():
+def adding_ltp_column_and_ltp():
     file_path = 'csv_files/merged_data_without_LTP.xlsx'
     wb = xw.Book(file_path)
     sheet = wb.sheets[0]
@@ -33,25 +31,12 @@ def adding_ltp_column():
     sheet.range('B:B').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
     sheet.range('B2').value = 'ltp'
 
-    data_list = latest_ltp
-
     cell_to_add = 'B3'
-    sheet.range(cell_to_add).options(transpose=True).value = data_list
+    sheet.range(cell_to_add).options(transpose=True).value = latest_ltp
 
     wb.save('csv_files/merged_data_with_ltp.xlsx')
     wb.close()
-    print("Done Adding and LTP Column with LTP")
-
-
-def add_ltp_from_here():
-    data_list = result
-    wb = xw.Book('csv_files/merged_data_with_ltp.xlsx')
-    sheet = xw.sheets[0]
-    cell_to_add = 'B3'
-    sheet.range(cell_to_add).options(transpose=True).value = data_list
-
-    wb.save()
-    wb.close()
+    print("Done Adding 'ltp' Column and added the Last Traded Price")
 
 
 def clear_colors(sheet):
@@ -84,7 +69,7 @@ def highlight_matching_ltp_with_fib_level_price(file_path):
                 sheet.range((i, 2)).color = (255, 0, 0)
                 sheet.range((i, j)).color = (255, 0, 0)
 
-    print("Done with matching the Ltp with fib levels")
+    print("Done with matching the Ltp with fib prices")
     wb.save()
     wb.close()
     app.quit()
@@ -121,7 +106,7 @@ def highlight_matching_fib_levels(file_path):
                 sheet.range((i, sheet.range(col_45 + '1').column)).color = (255, 255, 0)
                 sheet.range((i, sheet.range(col_15 + '1').column)).color = (255, 255, 0)
 
-    print("Done with matching the fib levels with 45 and 15 days")
+    print("Matching the fib levels with 45 and 15 days is complete.")
     wb.save()
     wb.close()
     app.quit()
@@ -129,9 +114,9 @@ def highlight_matching_fib_levels(file_path):
 
 if __name__ == "__main__":
     #merger()
+
     latest_ltp = get_latest_ltp()
-    #adding_ltp_column()
-    result = get_latest_ltp()
-    add_ltp_from_here()
+    adding_ltp_column_and_ltp()
     highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')
-    #highlight_matching_fib_levels('csv_files/merged_data_with_ltp.xlsx')
+
+    highlight_matching_fib_levels('csv_files/merged_data_with_ltp.xlsx')
