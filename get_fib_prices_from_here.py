@@ -10,6 +10,7 @@ def extract_45_days_fib_values(file_path, start_cell):
 
     return values
 
+
 file_path = 'csv_files/merged_data_with_ltp.xlsx'
 start_cell_to_extract_45_days = 'C3 :  K3'
 
@@ -24,6 +25,7 @@ def extract_15_days_fib_values(file_path, start_cell):
     wb.close()
 
     return values
+
 
 file_path = 'csv_files/merged_data_with_ltp.xlsx'
 start_cell_to_extract_45_days = 'L3 : T3'

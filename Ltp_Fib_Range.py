@@ -1,7 +1,7 @@
 import xlwings as xw
 from get_LTP_from_here import get_latest_ltp
 from utils import scripts
-from testing import d45_fib_prices, d15_fib_prices
+from get_fib_prices_from_here import d45_fib_prices, d15_fib_prices
 
 
 def adding_ltp_column_and_data():
