@@ -1,7 +1,6 @@
 import pandas as pd
 
-scripts = ['AARTIIND', 'ABB', 'ABBOTINDIA', 'ABCAPITAL', 'ABFRL',
-           'ZEEL', 'GAIL', 'RECLTD', 'SAIL', 'IOC']
+scripts = ['AARTIIND', 'ABB', 'ABBOTINDIA', 'PNB','ABCAPITAL', 'ABFRL']
 
 
 def fib(high, low):

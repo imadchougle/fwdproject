@@ -115,8 +115,8 @@ def highlight_matching_fib_levels(file_path):
 if __name__ == "__main__":
     #merger()
 
-    latest_ltp = get_latest_ltp()
-    adding_ltp_column_and_ltp()
-    highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')
+    #latest_ltp = get_latest_ltp()
+    #adding_ltp_column_and_ltp()
+    #highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')
 
     highlight_matching_fib_levels('csv_files/merged_data_with_ltp.xlsx')

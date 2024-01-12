@@ -20,7 +20,7 @@ else:
     first_day_of_next_month = date(current_date.year, current_date.month, 1) + timedelta(days=32)
     end_date = first_day_of_next_month.replace(day=1) - timedelta(days=1)
 
-    n = int(input("Enter how many last days you need"))
+    n = int(input("Enter how many last days you need : "))
     start_date = end_date - timedelta(days=n)
 
     print("start date: ", start_date)

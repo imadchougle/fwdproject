@@ -41,11 +41,15 @@ def find_fibonacci_range(stock_name, stock_price, fib_levels):
         '1.618 + ': (fib_levels[8], float('inf'))
     }
 
-    result_range = []  # Initialize list for each stock
+    result_range = []
+    # Initialize list for each stock
     for range_name, bounds in fibonacci_ranges.items():
         lower, upper = bounds
         if lower <= stock_price <= upper:
             result_range.append(range_name)
+
+    if stock_price in fib_levels:
+        result_range = [f"(Exact Match)"]
 
     # If the stock doesn't fall into any range, placeholder value
     if not result_range:
