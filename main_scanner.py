@@ -1,42 +1,8 @@
 import xlwings as xw
 from utils import *
-from get_LTP_from_here import *
-import pandas as pd
-
-
-def merger():
-    df_45_days = pd.read_csv('csv_files/D45_cycle.csv', index_col='stock')
-    df_15_days = pd.read_csv('csv_files/D15_cycle.csv', index_col='stock')
-
-    merged_df = pd.concat([df_45_days, df_15_days],
-                          axis=1,
-                          keys=['45 days', '15 days'])
-
-    wb = xw.Book()
-
-    sheet = wb.sheets['Sheet1']
-    sheet.range('A1').value = merged_df
-
-    wb.save('csv_files/merged_data_without_LTP.xlsx')
-
-    wb.close()
-    print("Done Merging it")
-
-
-def adding_ltp_column_and_ltp():
-    file_path = 'csv_files/merged_data_without_LTP.xlsx'
-    wb = xw.Book(file_path)
-    sheet = wb.sheets[0]
-
-    sheet.range('B:B').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
-    sheet.range('B2').value = 'ltp'
-
-    cell_to_add = 'B3'
-    sheet.range(cell_to_add).options(transpose=True).value = latest_ltp
-
-    wb.save('csv_files/merged_data_with_ltp.xlsx')
-    wb.close()
-    print("Done Adding 'ltp' Column and added the Last Traded Price")
+from get_LTP_from_here import get_latest_ltp
+from utils import scripts
+from get_fib_prices_from_here import d45_fib_prices, d15_fib_prices
 
 
 def clear_colors(sheet):
@@ -47,10 +13,15 @@ def clear_colors(sheet):
             cell.color = None
 
 
-def highlight_matching_ltp_with_fib_level_price(file_path):
+def highlight_matching_ltp_with_fib_level_price():
+    file_path = 'csv_files/merged_data_and_highlighted_with_ltp.xlsx'
     app = xw.App(visible=False)
     wb = xw.Book(file_path)
     sheet = wb.sheets[0]
+
+    cell_to_add = 'B3'
+    sheet.range(cell_to_add).options(transpose=True).value = latest_ltp
+
     total_rows = sheet.range((2, 1)).end('down').row
 
     clear_colors(sheet)
@@ -70,53 +41,105 @@ def highlight_matching_ltp_with_fib_level_price(file_path):
                 sheet.range((i, j)).color = (255, 0, 0)
 
     print("Done with matching the Ltp with fib prices")
-    wb.save()
+    wb.save('csv_files/data.xlsx')
     wb.close()
     app.quit()
 
 
-def highlight_matching_fib_levels(file_path):
-    column_mapping = {'C': 'L',
-                      'D': 'M',
-                      'E': 'N',
-                      'F': 'O',
-                      'G': 'P',
-                      'H': 'Q',
-                      'I': 'R',
-                      'J': 'S',
-                      'K': 'T'}
-
-    app = xw.App(visible=False)
+def adding_ltp_column_and_data():
+    file_path = 'csv_files/data.xlsx'
     wb = xw.Book(file_path)
     sheet = wb.sheets[0]
 
-    # clear_colors(sheet)
-    start_row = 3
-    last_row = sheet.used_range.rows.count
+    sheet.range('C:C').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
+    sheet.range('C2').value = '45 Days'
 
-    # Iterate through the rows starting from the specified row until the last row
-    for i in range(start_row, last_row + 1):
-        # Iterate through the specified columns for comparison
-        for col_45, col_15 in column_mapping.items():
-            # Get the values for comparison
-            value_45 = sheet.range((i, sheet.range(col_45 + '1').column)).value
-            value_15 = sheet.range((i, sheet.range(col_15 + '1').column)).value
+    sheet.range('D:D').api.Insert(Shift=-4161)
+    sheet.range('D2').value = '15 Days'
 
-            if value_45 == value_15:
-                sheet.range((i, sheet.range(col_45 + '1').column)).color = (255, 255, 0)
-                sheet.range((i, sheet.range(col_15 + '1').column)).color = (255, 255, 0)
+    cell_to_add = 'C3'
+    sheet.range(cell_to_add).options(transpose=True).value = new_result_45days
 
-    print("Matching the fib levels with 45 and 15 days is complete.")
-    wb.save()
+    cell_to_add = 'D3'
+    sheet.range(cell_to_add).options(transpose=True).value = new_result_15days
+
+    cell_to_add = 'B3'
+    sheet.range(cell_to_add).options(transpose=True).value = latest_ltp
+
+    wb.save('csv_files/merged_data_with_ltp_and_Range.xlsx')
     wb.close()
-    app.quit()
+
+
+def find_fibonacci_range(stock_name, stock_price, fib_levels):
+    fibonacci_ranges = {
+        '0 - 0.236': (fib_levels[0], fib_levels[1]),
+        '0.236 - 0.382': (fib_levels[1], fib_levels[2]),
+        '0.382 - 0.5': (fib_levels[2], fib_levels[3]),
+        '0.5 - 0.618': (fib_levels[3], fib_levels[4]),
+        '0.618 - 0.786': (fib_levels[4], fib_levels[5]),
+        '0.786 - 1': (fib_levels[5], fib_levels[6]),
+        '1 - 1.236': (fib_levels[6], fib_levels[7]),
+        '1.236 - 1.618': (fib_levels[7], fib_levels[8]),
+        '1.618 + ': (fib_levels[8], float('inf'))
+    }
+
+    result_range = []
+    # Initialize list for each stock
+    for range_name, bounds in fibonacci_ranges.items():
+        lower, upper = bounds
+        if lower <= stock_price <= upper:
+            result_range.append(range_name)
+
+    if stock_price in fib_levels:
+        if stock_price == fib_levels[0]:
+            result_range = [0]
+        elif stock_price == fib_levels[1]:
+            result_range = [0.236]
+        elif stock_price == fib_levels[2]:
+            result_range = [0.382]
+        elif stock_price == fib_levels[3]:
+            result_range = [0.5]
+        elif stock_price == fib_levels[4]:
+            result_range = [0.618]
+        elif stock_price == fib_levels[5]:
+            result_range = [0.786]
+        elif stock_price == fib_levels[6]:
+            result_range = [1]
+        elif stock_price == fib_levels[7]:
+            result_range = [1.236]
+        else:
+            result_range = [1.618]
+
+    # If the stock doesn't fall into any range, placeholder value
+    if not result_range:
+        result_range.append('Less than 0')
+
+    return result_range
 
 
 if __name__ == "__main__":
-    #merger()
+    latest_ltp = get_latest_ltp()
+    highlight_matching_ltp_with_fib_level_price()
 
-    #latest_ltp = get_latest_ltp()
-    #adding_ltp_column_and_ltp()
-    #highlight_matching_ltp_with_fib_level_price('csv_files/merged_data_with_ltp.xlsx')
+    result_range_45days = []
+    result_range_15days = []
+    stocks = scripts
 
-    highlight_matching_fib_levels('csv_files/merged_data_with_ltp.xlsx')
+    fib_levels_of_45_days = d45_fib_prices
+    fib_levels_of_15_days = d15_fib_prices
+
+    for i in range(len(stocks)):
+        result_of_45days = find_fibonacci_range(stocks[i],
+                                                latest_ltp[i],
+                                                fib_levels_of_45_days[i])
+        result_range_45days += result_of_45days  # Concatenate the result for each stock
+
+        result_of_15days = find_fibonacci_range(stocks[i],
+                                                latest_ltp[i],
+                                                fib_levels_of_15_days[i])
+        result_range_15days += result_of_15days  # Concatenate the result for each stock
+
+    new_result_45days = result_range_45days
+    new_result_15days = result_range_15days
+
+    adding_ltp_column_and_data()

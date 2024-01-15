@@ -4,7 +4,7 @@ from get_LTP_from_here import *
 import pandas as pd
 
 
-def merger():
+def merge_and_add_ltp():
     df_45_days = pd.read_csv('csv_files/D45_cycle.csv', index_col='stock')
     df_15_days = pd.read_csv('csv_files/D15_cycle.csv', index_col='stock')
 
@@ -13,26 +13,31 @@ def merger():
                           keys=['45 days', '15 days'])
 
     wb = xw.Book()
+    sheet = wb.sheets[0]
 
-    sheet = wb.sheets['Sheet1']
     sheet.range('A1').value = merged_df
 
-    wb.save('csv_files/merged_data_without_LTP.xlsx')
+    sheet.range('B:B').api.Insert(Shift=-4161)  # -4161 corresponds to shifting to the right
+    sheet.range('B2').value = 'ltp'
 
+    sheet.range('B3').options(transpose=True).value = latest_ltp
+
+    wb.save('csv_files/merged_data_with_ltp.xlsx')
     wb.close()
-    print("Done Merging it")
+    print("Done Merging and Adding 'ltp' Column.")
 
 
-def new_highlight_matching_fib_levels(file_path):
-    column_mapping = {'B': 'K',
-                      'C': 'L',
+def new_highlight_matching_fib_levels():
+    file_path = 'csv_files/merged_data_with_ltp.xlsx'
+    column_mapping = {'C': 'L',
                       'D': 'M',
                       'E': 'N',
                       'F': 'O',
                       'G': 'P',
                       'H': 'Q',
                       'I': 'R',
-                      'J': 'S'}
+                      'J': 'S',
+                      'K': 'T'}
 
     app = xw.App(visible=False)
     wb = xw.Book(file_path)
@@ -55,10 +60,11 @@ def new_highlight_matching_fib_levels(file_path):
                 sheet.range((i, sheet.range(col_15 + '1').column)).color = (255, 255, 0)
 
     print("Matching the fib levels with 45 and 15 days is complete.")
-    wb.save('csv_files/new_matched_data_without_ltp.xlsx')
+    wb.save('csv_files/merged_data_and_highlighted_with_ltp.xlsx')
     wb.close()
     app.quit()
 
 
-merger()
-new_highlight_matching_fib_levels('csv_files/merged_data_without_LTP.xlsx')
+latest_ltp = get_latest_ltp()
+merge_and_add_ltp()
+new_highlight_matching_fib_levels()

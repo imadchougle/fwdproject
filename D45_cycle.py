@@ -34,8 +34,7 @@ grant_type = UserCred["grant_type"]
 
 fyers = fyersModel.FyersModel(client_id=client_id,
                               is_async=False,
-                              token=token,
-                              log_path="")
+                              token=token)
 
 stock_data = []
 

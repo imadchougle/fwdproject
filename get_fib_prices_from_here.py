@@ -11,7 +11,7 @@ def extract_45_days_fib_values(file_path, start_cell):
     return values
 
 
-file_path = 'csv_files/merged_data_with_ltp.xlsx'
+file_path = 'csv_files/merged_data_and_highlighted_with_ltp.xlsx'
 start_cell_to_extract_45_days = 'C3 :  K3'
 
 d45_fib_prices = extract_45_days_fib_values(file_path, start_cell_to_extract_45_days)
@@ -27,7 +27,7 @@ def extract_15_days_fib_values(file_path, start_cell):
     return values
 
 
-file_path = 'csv_files/merged_data_with_ltp.xlsx'
+file_path = 'csv_files/merged_data_and_highlighted_with_ltp.xlsx'
 start_cell_to_extract_45_days = 'L3 : T3'
 
 d15_fib_prices = extract_15_days_fib_values(file_path, start_cell_to_extract_45_days)
