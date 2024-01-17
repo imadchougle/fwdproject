@@ -1,0 +1,4 @@
+scripts = ['ABBOTINDIA', 'BATAINDIA', 'BPCL',
+           'CANBK', 'CANFINHOME', 'CHAMBLFERT', 'COROMANDEL', 'CROMPTON', 'CUB', 'CUMMINSIND',
+           'DABUR', 'EXIDEIND',
+           'FEDERALBNK', 'FSL']
