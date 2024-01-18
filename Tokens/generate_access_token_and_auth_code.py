@@ -1,7 +1,7 @@
 from fyers_apiv3 import fyersModel
 import json
 
-apicredfile = open('UserCred.json')
+apicredfile = open('C:/Users/imadc/PycharmProjects/fwdproject/UserCred.json')
 UserCred = json.load(apicredfile)
 
 client_id = UserCred["client_id"]

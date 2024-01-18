@@ -7,8 +7,8 @@ from utils import scripts
 apicredfile = open('C:\\Users\\imadc\\PycharmProjects\\fwdproject\\UserCred.json')
 UserCred = json.load(apicredfile)
 
-FROM_DATE = '2023-08-08'
-TO_DATE = '2024-01-17'  # current date
+FROM_DATE = '2023-08-09'
+TO_DATE = '2024-01-18'  # current date
 
 with open('C:\\Users\\imadc\\PycharmProjects\\fwdproject\\Tokens\\access_token.txt', 'r') as file:
     token = file.read().strip()
@@ -37,6 +37,7 @@ for stocks in range(len(scripts)):
     close_value = []
     high_value = []
     low_value = []
+    volume_value = []
 
     response = fyers.history(data=data)
 
@@ -46,8 +47,12 @@ for stocks in range(len(scripts)):
         close_value.append(candle[4])
         high_value.append(candle[2])
         low_value.append(candle[3])
+        volume_value.append(candle[5])
 
-    df = pd.DataFrame({'High': high_value,  'Low': low_value, 'Close': close_value})
+    df = pd.DataFrame({'High': high_value,  'Low': low_value, 'Close': close_value, 'Volume': volume_value})
+
+# -------------------------------------------------------------------------------------------------------------
+    df['RSI'] = ta.rsi(close=df['Close'], length=14)
     df['ADX'] = ta.adx(high=df['High'], low=df['Low'], close=df['Close'], length=14, detailed=False)['ADX_14']
     df['Awesome_Oscillator'] = ta.ao(df['High'], df['Low'])
     df['CCI'] = ta.cci(high=df['High'], low=df['Low'], close=df['Close'], length=14)
@@ -59,22 +64,51 @@ for stocks in range(len(scripts)):
     bollinger_bands = bollinger_bands[['BBU_20_2.0', 'BBL_20_2.0', 'BBM_20_2.0']]
     bollinger_bands.columns = ['Upper_Band', 'Lower_Band', 'Basis']
 
+    money_flow_index = ta.mfi(df['High'], df['Low'], df['Close'], df['Volume'], length=14)
 
-    latest_rsi = df.ta.rsi(length=14).iloc[-1] # RSI
+    df['SMA20'] = ta.sma(df['Close'], length=20)
+    df['SMA50'] = ta.sma(df['Close'], length=50)
+    df['SMA100'] = ta.sma(df['Close'], length=100)
+    df['SMA200'] = ta.sma(df['Close'], length=200)
 
-    latest_adx = df.iloc[-1]['ADX'] # ADX
+    stochrsi_values = ta.stochrsi(close=df['Close'], length=14, k=3, d=3)
+    df['StochRSI_K'] = stochrsi_values.iloc[:, 0]
+    df['StochRSI_D'] = stochrsi_values.iloc[:, 1]
 
-    latest_awesome_oscillator = df.iloc[-1]['Awesome_Oscillator'] # AO
+    # Stochastic Oscillator (stoch)
+    stoch_values = ta.stoch(df['High'], df['Low'], df['Close'], k=14, d=3, smooth_k=3)
+    df['Stoch_K'] = stoch_values.iloc[:, 0]
 
-    latest_cci = df.iloc[-1]['CCI'] # CCI
+# ---------------------------------------------------------------------------------
+    latest_rsi = round(df.iloc[-1]['RSI'], 2) # RSI
 
-    latest_macd_line = macd_values['MACD_Line'].iloc[-1]    # MACD
-    latest_histo_line = macd_values['MACD_Histogram'].iloc[-1]
-    latest_signal_line = macd_values['MACD_Signal_Line'].iloc[-1]
+    latest_adx = round(df.iloc[-1]['ADX'], 2) # ADX
 
-    latest_upper_bb = bollinger_bands['Upper_Band'].iloc[-1]
-    latest_lower_bb = bollinger_bands['Lower_Band'].iloc[-1]
-    latest_basis_bb = bollinger_bands['Basis'].iloc[-1]
+    latest_awesome_oscillator = round(df.iloc[-1]['Awesome_Oscillator'], 2) # AO
+
+    latest_cci = round(df.iloc[-1]['CCI'], 2) # CCI
+
+    latest_macd_line = round(macd_values['MACD_Line'].iloc[-1], 2)  # MACD
+    latest_histo_line = round(macd_values['MACD_Histogram'].iloc[-1], 2)
+    latest_signal_line = round(macd_values['MACD_Signal_Line'].iloc[-1], 2)
+
+    latest_upper_bb = round(bollinger_bands['Upper_Band'].iloc[-1], 2) # Bollinger Bands
+    latest_lower_bb = round(bollinger_bands['Lower_Band'].iloc[-1], 2)
+    latest_basis_bb = round(bollinger_bands['Basis'].iloc[-1], 2)
+
+    latest_mfi = round(money_flow_index.iloc[-1], 2)
+
+    latest_sma20 = round(df.iloc[-1]['SMA20'], 2)
+    latest_sma50 = round(df.iloc[-1]['SMA50'], 2)
+    latest_sma100 = round(df.iloc[-1]['SMA100'], 2)
+    latest_sma200 = df.iloc[-1]['SMA200']
+
+    latest_stochrsi_k = round(df.iloc[-1]['StochRSI_K'], 2)  # StochRSI K
+    latest_stochrsi_d = round(df.iloc[-1]['StochRSI_D'], 2)  # StochRSI D
+
+    latest_stoch_k = round(df.iloc[-1]['Stoch_K'], 2)
+
+# ------------------------------------------------------------------------------------------------------------
 
     result_data.append({'Stocks': scripts[stocks],
                         'RSI': latest_rsi,
@@ -84,9 +118,17 @@ for stocks in range(len(scripts)):
                         'MACD_Line': latest_macd_line,
                         'MACD_Signal_Line': latest_signal_line,
                         'MACD_Histogram': latest_histo_line,
-                        'BB_Upper' : latest_upper_bb,
-                        'BB_Lower' : latest_lower_bb,
-                        'BB_Basis' : latest_basis_bb
+                        'BB_Upper': latest_upper_bb,
+                        'BB_Lower': latest_lower_bb,
+                        'BB_Basis': latest_basis_bb,
+                        'MFI': latest_mfi,
+                        'SMA20': latest_sma20,
+                        'SMA50': latest_sma50,
+                        'SMA100': latest_sma100,
+                        'SMA200': latest_sma200,
+                        'StochRSI_K': latest_stochrsi_k,
+                        'StochRSI_D': latest_stochrsi_d,
+                        'Stochastic Oscillator': latest_stoch_k
                         })
 
 result_df = pd.DataFrame(result_data)
