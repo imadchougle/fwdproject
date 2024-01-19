@@ -7,8 +7,8 @@ from utils import scripts
 apicredfile = open('C:\\Users\\imadc\\PycharmProjects\\fwdproject\\UserCred.json')
 UserCred = json.load(apicredfile)
 
-FROM_DATE = '2023-08-09'
-TO_DATE = '2024-01-18'  # current date
+FROM_DATE = '2023-08-10'  #last 110 candles date
+TO_DATE = '2024-01-19'  # current date
 
 with open('C:\\Users\\imadc\\PycharmProjects\\fwdproject\\Tokens\\access_token.txt', 'r') as file:
     token = file.read().strip()
